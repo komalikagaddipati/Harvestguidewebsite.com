@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crop Recommendation for Farmers</title>
+<style>
+body { margin:0; padding:0; font-family:'Comic Sans MS', cursive; overflow-x:hidden; background:#f0f8ff; }
+section { display:none; height:100vh; width:100vw; text-align:center; padding:20px; box-sizing:border-box; position:relative; }
+.active { display:block; }
+
+/* Title Page */
+#title h1 { font-size:3rem; color:#2e8b57; position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); }
+.cloud, .bird { position:absolute; font-size:3rem; animation:moveAcross 30s linear infinite; }
+.cloud { top:35%; }   
+.bird { top:40%; animation-duration:20s; }  
+@keyframes moveAcross { from{left:-10%} to{left:110%} }
+
+/* Login Page */
+.grass { position:absolute; bottom:0; width:100%; text-align:center; font-size:2rem; animation:wave 2s infinite alternate; }
+@keyframes wave { from{transform:translateY(0);} to{transform:translateY(-5px);} }
+input, select { margin:10px 0; padding:8px; font-size:1rem; width:80%; max-width:300px; }
+
+/* Buttons */
+button { padding:10px 20px; margin:10px; border:none; border-radius:8px; font-size:1rem; cursor:pointer; background:#2e8b57; color:#fff; }
+button:hover{ background:#256d46; }
+
+/* Weather box */
+.weather-box { background:#e6f7ff; border:1px solid #00aaff; border-radius:8px; padding:10px; margin:10px auto; max-width:300px; font-size:1rem; }
+
+/* Pie chart */
+#chartContainer { width:200px; height:200px; margin:auto; }
+
+/* Dark mode */
+.dark-mode { background:#222; color:#f0f0f0; }
+.dark-mode button { background:#444; }
+
+/* Farmer animation */
+.farmer-line { position:absolute; bottom:0; width:100%; white-space:nowrap; font-size:2rem; animation:farmWalk 20s linear infinite; }
+@keyframes farmWalk { from{transform:translateX(100%);} to{transform:translateX(-100%);} }
+</style>
+</head>
+<body>
+
+<!-- Title Page -->
+<section id="title" class="active">
+  <div class="cloud">☁️☁️☁️</div>
+  <div class="bird">🕊️🕊️</div>
+  <h1 id="titleText">🌾 Crop Recommendation for Farmers 🚜</h1>
+</section>
+
+<!-- Login Page -->
+<section id="login">
+  <h2 id="welcomeText">🌾 Welcome Farmer! Let’s grow profits, not just weeds 🚜😂</h2>
+  <div><input type="text" id="farmerName" placeholder="👤 Enter your Name"></div>
+  <div><input type="text" id="farmerMobile" placeholder="📱 Enter Mobile Number"></div>
+  <div>
+    <button onclick="prevPage()">⬅️ Back</button>
+    <button onclick="nextPage()">Next ➡️</button>
+  </div>
+  <div class="grass">🌿🌿🌿🌿🌿🌿🌿🌿🌿</div>
+</section>
+
+<!-- Language Page -->
+<section id="language">
+  <h2 id="languageText">🌐 Preferred Language</h2>
+  <div>
+    <select id="languageSelect">
+      <option value="en">English</option>
+      <option value="hi">हिन्दी</option>
+      <option value="te">తెలుగు</option>
+    </select>
+  </div>
+  <div>
+    <button onclick="prevPage()">⬅️ Back</button>
+    <button onclick="nextPage()">Next ➡️</button>
+  </div>
+</section>
+
+<!-- Form Page -->
+<section id="form">
+  <h2 id="formTitle">📝 Crop Details Form</h2>
+  <div><input type="text" id="location" placeholder="📍 Location"></div>
+  <div><input type="number" id="landArea" placeholder="🌏 Land Area (hectares)"></div>
+
+  <div id="climateLabel">🌦️ Climate Condition ℹ️<br>
+    <select id="climate"></select>
+  </div>
+
+  <div id="soilLabel">🌱 Soil Type ℹ️<br>
+    <select id="soil"></select>
+  </div>
+
+  <div id="waterLabel">💧 Water Availability<br>
+    <select id="water"></select>
+  </div>
+
+  <div id="seasonLabel">🌾 Cropping Season<br>
+    <select id="season"></select>
+  </div>
+
+  <div id="cultureLabel">🌿 Culture Needs<br>
+    <select id="culture"></select>
+  </div>
+
+  <div id="policyLabel">🏛️ Govt Policy Support<br>
+    <select id="policy"></select>
+  </div>
+
+  <div id="fertilityLabel">🌱 Fertility (NPK %)<br>
+    N: <input type="range" id="nitrogen" min="0" max="10" value="5"><br>
+    P: <input type="range" id="phosphorus" min="0" max="10" value="5"><br>
+    K: <input type="range" id="potassium" min="0" max="10" value="5">
+  </div>
+
+  <div class="weather-box" id="weatherBox"></div>
+
+  <div>
+    <button onclick="prevPage()">⬅️ Back</button>
+    <button onclick="nextPage()">Next ➡️</button>
+  </div>
+</section>
+
+<!-- Recommendation Page -->
+<section id="recommendation">
+  <h2 id="recommendationTitle">🌟 Recommended Crop</h2>
+  <p id="cropResult"></p>
+  <p id="duration"></p>
+  <p id="seeds"></p>
+  <p id="labour"></p>
+  <p id="wages"></p>
+  <p id="fertilityText"></p>
+  <p id="msp"></p>
+  <div id="chartContainer"><canvas id="pieChart"></canvas></div>
+  <div>
+    <button onclick="shareRecommendation()">📲 Share</button>
+    <button onclick="saveHistory()">📜 Save</button>
+    <button onclick="toggleDarkMode()">🌙 Toggle Dark Mode</button>
+  </div>
+  <div>
+    <button onclick="prevPage()">⬅️ Back</button>
+    <button onclick="nextPage()">Next ➡️</button>
+  </div>
+</section>
+
+<!-- Thank You Page -->
+<section id="thankyou">
+  <h1 id="thankYouText">🙏 Thank You, Farmer!</h1>
+  <p id="funnyQuote">🌱 “Crop 2.0 – Because Farming Deserves an Upgrade” 😆</p>
+  <div class="farmer-line">👨‍🌾🌱🌱🌱🌱🌱🌱</div>
+  <div><button onclick="prevPage()">⬅️ Back</button></div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let current=0;
+const sections=document.querySelectorAll("section");
+function showPage(i){ 
+  sections.forEach((s,idx)=>s.classList.toggle("active",idx===i)); 
+  current=i; 
+  if(sections[i].id==="form") generateWeather(); 
+  if(sections[i].id==="recommendation") showRecommendation(); 
+  if(sections[i].id==="thankyou") showThankYou(); 
+}
+function nextPage(){if(current<sections.length-1) showPage(current+1);}
+function prevPage(){if(current>0) showPage(current-1);}
+setTimeout(()=>nextPage(),6000);
+
+// Language data
+const langData={
+  en:{
+    labels:{title:"🌾 Crop Recommendation for Farmers 🚜", welcome:"🌾 Welcome Farmer! Let’s grow profits, not just weeds 🚜😂", name:"👤 Enter your Name", mobile:"📱 Enter Mobile Number", preferred:"🌐 Preferred Language", form:"📝 Crop Details Form", location:"📍 Location", land:"🌏 Land Area (hectares)", recommendation:"🌟 Recommended Crop", thankYou:"🙏 Thank You, Farmer!", funny:"", cropResult:"Your best crop is:", duration:"⏳ Duration:", seeds:"🌱 Seeds:", labour:"👨‍🌾 Labour Required:", wages:"💰 Wages:", fertility:"🧪 Fertility NPK:", msp:"📊 MSP | Market Price:"},
+    climate:["Sunny","Rainy","Moderate"], soil:["Loamy","Sandy","Clay"], water:["Yes","No"], season:["Zaid (Summer)","Rabi (Winter)","Kharif (Monsoon)"], culture:["Traditional","Modern"], policy:["Yes","No"],
+    crops:{"Rice":"🌾 Rice","Wheat":"🌾 Wheat","Maize":"🌽 Maize","Gram":"🫘 Gram"}
+  },
+  hi:{
+    labels:{title:"🌾 किसानों के लिए फ़सल सिफ़ारिश 🚜", welcome:"🌾 स्वागत है किसान! सिर्फ़ खरपतवार नहीं, मुनाफ़ा उगाएँ 🚜😂", name:"👤 नाम दर्ज करें", mobile:"📱 मोबाइल नंबर दर्ज करें", preferred:"🌐 पसंदीदा भाषा", form:"📝 फ़सल विवरण फॉर्म", location:"📍 स्थान", land:"🌏 भूमि क्षेत्र (हेक्टेयर)", recommendation:"🌟 सुझाई गई फ़सल", thankYou:"🙏 धन्यवाद, किसान!", funny:"", cropResult:"आपकी सबसे अच्छी फ़सल है:", duration:"⏳ अवधि:", seeds:"🌱 बीज:", labour:"👨‍🌾 श्रम की आवश्यकता:", wages:"💰 मजदूरी:", fertility:"🧪 उर्वरता NPK:", msp:"📊 MSP | बाज़ार मूल्य:"},
+    climate:["सूर्यप्रकाश","बारिश","मध्यम"], soil:["दोमट","रेतीली","मिट्टी"], water:["हाँ","नहीं"], season:["ज़ैद (ग्रीष्म)","रबी (सर्दी)","खरीफ (मानसून)"], culture:["परंपरागत","आधुनिक"], policy:["हाँ","नहीं"],
+    crops:{"Rice":"🌾 चावल","Wheat":"🌾 गेहूँ","Maize":"🌽 मक्का","Gram":"🫘 चना"}
+  },
+  te:{
+    labels:{title:"🌾 రైతుల కోసం పంట సిఫార్సులు 🚜", welcome:"🌾 స్వాగతం రైతు! కేవలం పొలపు తూ కాయలు కాదు, లాభం పెంచుదాం 🚜😂", name:"👤 మీ పేరు నమోదు చేయండి", mobile:"📱 మొబైల్ నంబర్ నమోదు చేయండి", preferred:"🌐 ఇష్టమైన భాష", form:"📝 పంట వివరాల ఫారం", location:"📍 స్థానం", land:"🌏 భూమి విస్తీర్ణం (హెక్టార్లు)", recommendation:"🌟 సిఫార్సు చేసిన పంట", thankYou:"🙏 ధన్యవాదాలు, రైతు!", funny:"", cropResult:"మీ ఉత్తమ పంట:", duration:"⏳ వ్యవధి:", seeds:"🌱 గింజలు:", labour:"👨‍🌾 పని అవసరం:", wages:"💰 వేతనం:", fertility:"🧪 ఫర్టిలిటీ NPK:", msp:"📊 MSP | మార్కెట్ ధర:"},
+    climate:["సూర్యకాంతి","వర్షం","మధ్యమ"], soil:["దొమిటి","మణి","మట్టి"], water:["అవును","కాదు"], season:["జైడ్ (గ్రీష్మం)","రబీ (చలి)","ఖరీఫ్ (మోన్సూన్)"], culture:["సాంప్రదాయ","ఆధునిక"], policy:["అవును","కాదు"],
+    crops:{"Rice":"🌾 బియ్యం","Wheat":"🌾 గోధుమ","Maize":"🌽 మక్కజొన్న","Gram":"🫘 శనగ"}
+  }
+};
+
+// Funny quotes per language
+const funnyQuotes = {
+  en:[
+    "🌱 'Crop 2.0 – Because Farming Deserves an Upgrade' 😆",
+    "🚜 'Plough today, party tomorrow!' 😂",
+    "🌾 'More crops, less oops!' 🤣"
+  ],
+  hi:[
+    "🌱 'फ़सल 2.0 – क्योंकि खेती को अपग्रेड की ज़रूरत है' 😆",
+    "🚜 'आज जुताई, कल जश्न!' 😂",
+    "🌾 'ज़्यादा फ़सल, कम गड़बड़!' 🤣"
+  ],
+  te:[
+    "🌱 'Crop 2.0 – వ్యవసాయం కి అప్‌గ్రేడ్ అవసరం' 😆",
+    "🚜 'ఈరోజు దున్ను, రేపు పండుగ!' 😂",
+    "🌾 'ఎక్కువ పంట, తక్కువ సమస్యలు!' 🤣"
+  ]
+};
+
+// Update language
+function updateLanguage(lang){
+  const data=langData[lang].labels;
+  document.getElementById("titleText").innerText=data.title;
+  document.getElementById("welcomeText").innerText=data.welcome;
+  document.getElementById("farmerName").placeholder=data.name;
+  document.getElementById("farmerMobile").placeholder=data.mobile;
+  document.getElementById("languageText").innerText=data.preferred;
+  document.getElementById("formTitle").innerText=data.form;
+  document.getElementById("location").placeholder=data.location;
+  document.getElementById("landArea").placeholder=data.land;
+  document.getElementById("recommendationTitle").innerText=data.recommendation;
+  document.getElementById("thankYouText").innerText=data.thankYou;
+
+  ["climate","soil","water","season","culture","policy"].forEach(id=>{
+    const sel=document.getElementById(id);
+    sel.innerHTML="";
+    langData["en"][id].forEach((val,i)=>{
+      const option=document.createElement("option");
+      option.value=val; // keep logic in English
+      option.innerText=langData[lang][id][i]; // show translated
+      sel.appendChild(option);
+    });
+  });
+}
+document.getElementById("languageSelect").addEventListener("change",function(){ updateLanguage(this.value); });
+updateLanguage("en");
+
+// Weather
+function generateWeather(){
+  const temp=25+Math.floor(Math.random()*10);
+  const humidity=50+Math.floor(Math.random()*40);
+  const rain=Math.floor(Math.random()*20);
+  document.getElementById("weatherBox").innerText=`🌤️ Weather Today: ${temp}°C | Humidity: ${humidity}% | Rainfall: ${rain}mm`;
+}
+
+// Crops data
+const cropsData={
+  "Rice": {climate:["Sunny","Rainy"], soil:["Loamy","Clay"], water:"Yes", season:["Kharif","Zaid"], duration:"6 months", seeds:"20kg", MSP:2369, market:3350},
+  "Wheat": {climate:["Sunny","Moderate"], soil:["Loamy","Sandy"], water:"Yes", season:["Rabi"], duration:"6 months", seeds:"15kg", MSP:2425, market:2500},
+  "Maize": {climate:["Sunny"], soil:["Loamy","Sandy"], water:"Yes", season:["Kharif"], duration:"5 months", seeds:"25kg", MSP:2400, market:2200},
+  "Gram": {climate:["Sunny"], soil:["Sandy","Loamy"], water:"No", season:["Rabi"], duration:"6 months", seeds:"10kg", MSP:5650, market:5200}
+};
+
+// Recommendation
+function showRecommendation(){
+  const lang=document.getElementById("languageSelect").value;
+  const labels=langData[lang].labels;
+  const data={
+    climate:document.getElementById("climate").value,
+    soil:document.getElementById("soil").value,
+    water:document.getElementById("water").value,
+    season:document.getElementById("season").value,
+    landArea:parseFloat(document.getElementById("landArea").value)||1,
+    nitrogen:parseFloat(document.getElementById("nitrogen").value),
+    phosphorus:parseFloat(document.getElementById("phosphorus").value),
+    potassium:parseFloat(document.getElementById("potassium").value)
+  };
+  let bestScore=0, bestCrop="Rice";
+  for(const crop in cropsData){
+    let score=0;
+    const c=cropsData[crop];
+    if(c.climate.includes(data.climate)) score+=20;
+    if(c.soil.includes(data.soil)) score+=20;
+    if(c.water===data.water) score+=20;
+    if(c.season.includes(data.season)) score+=20;
+    const avgNPK=(data.nitrogen+data.phosphorus+data.potassium)/3;
+    if(avgNPK>=5) score+=20;
+    if(score>bestScore){ bestScore=score; bestCrop=crop; }
+  }
+  const selected=cropsData[bestCrop];
+  const cropName=langData[lang].crops[bestCrop]||bestCrop;
+  document.getElementById("cropResult").innerText=labels.cropResult+" "+cropName;
+  document.getElementById("duration").innerText=labels.duration+" "+selected.duration;
+  document.getElementById("seeds").innerText=labels.seeds+" "+selected.seeds;
+  const labour=Math.ceil(data.landArea*2);
+  document.getElementById("labour").innerText=labels.labour+" "+labour+" persons";
+  document.getElementById("wages").innerText=labels.wages+" ₹250 per person/day";
+  document.getElementById("fertilityText").innerText=labels.fertility+" N:"+data.nitrogen+" P:"+data.phosphorus+" K:"+data.potassium;
+  document.getElementById("msp").innerText=labels.msp+" MSP ₹"+selected.MSP+" | Market ₹"+selected.market;
+  renderChart();
+}
+
+// Pie chart
+function renderChart(){
+  const ctx=document.getElementById("pieChart").getContext("2d");
+  new Chart(ctx,{type:"pie",data:{labels:["Seeds","Fertilizer","Labour","Other"],datasets:[{data:[30,25,20,25]}]},options:{responsive:true}});
+}
+
+// Thank you random quote
+function showThankYou(){
+  const lang=document.getElementById("languageSelect").value;
+  const arr=funnyQuotes[lang];
+  const randomQuote=arr[Math.floor(Math.random()*arr.length)];
+  document.getElementById("funnyQuote").innerText=randomQuote;
+}
+
+// Share / Save / Dark mode
+function shareRecommendation(){ alert("📲 Sharing Recommendation..."); }
+function saveHistory(){ alert("📜 Saved to history!"); }
+function toggleDarkMode(){ document.body.classList.toggle("dark-mode"); }
+</script>
+</body>
+</html>
